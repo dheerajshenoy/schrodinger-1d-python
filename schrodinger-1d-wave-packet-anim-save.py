@@ -53,39 +53,19 @@ class WavePacket:
 
         return self.prob
 
-class Animator:
-    def __init__(self, wave_packet):
-        self.time = 0.0
-        self.wave_packet = wave_packet
-        self.fig, self.ax = plt.subplots()
-        plt.plot(self.wave_packet.x, self.wave_packet.potential * 0.1, color='r')
-
-        self.time_text = self.ax.text(0.05, 0.95, '', horizontalalignment='left',
-                                      verticalalignment='top', transform=self.ax.transAxes)
-        self.line, = self.ax.plot(self.wave_packet.x, self.wave_packet.evolve())
-        self.ax.set_ylim(0, 0.2)
-        self.ax.set_xlim(wave_packet.xi, wave_packet.xf)
-        self.ax.set_xlabel('Position (a$_0$)')
-        self.ax.set_ylabel('Probability density (a$_0$)')
-
-    def update(self, data):
-        self.line.set_ydata(data)
-        return self.line,
-
-    def time_step(self):
-        while True:
-            self.time += self.wave_packet.dt
-            self.time_text.set_text(
-                    'Elapsed time: {:6.2f} fs'.format(self.time * 2.419e-2))
-
-            yield self.wave_packet.evolve()
-
-    def animate(self):
-        #self.ani = FuncAnimation(self.fig, self.update, frames = self.time_step, interval=5, blit=False)
-        self.ani.save("schrodinger-wave-packet.mp4")
-
 
 w = WavePacket(n_points = 500, dt = 0.5, b_width =5, b_height = 1)
-ani = Animator(w)
-ani.animate()
+
+fig = plt.figure()
+ax = plt.axes()
+l, = plt.plot(w.x, w.potential * 0.1)
+p, = plt.plot(w.x, w.evolve())
+
+def animate(i):
+    p.set_data(w.x, w.evolve())
+    return p,
+
+
+anim = FuncAnimation(fig, animate, frames = 1000, interval = 40)
+anim.save("schrodinger-wave-packet.mp4")
 plt.show()
